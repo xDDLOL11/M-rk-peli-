@@ -11,21 +11,17 @@ PORT = 12345
 TROOP_SIZE = 20
 TROOP_HEALTH = 100
 
-# Troop types
-TROOP_TYPES = {
-    'infantry': {'range': 30, 'damage': 10, 'speed': 3},
-    'archer': {'range': 60, 'damage': 5, 'speed': 2},
-    'cavalry': {'range': 20, 'damage': 15, 'speed': 5}
-}
+# Troop types (for reference)
+TROOP_TYPES = ['infantry', 'archer', 'cavalry']
 
 # Game state
 game_state = {
     'team_1_troops': [
-        {'x': random.randint(0, 15) * TROOP_SIZE, 'y': random.randint(0, 10) * TROOP_SIZE, 'troop_type': random.choice(['infantry', 'archer', 'cavalry']), 'health': TROOP_HEALTH}
+        (random.randint(0, 15) * TROOP_SIZE, random.randint(0, 10) * TROOP_SIZE, random.choice(TROOP_TYPES), TROOP_HEALTH)
         for _ in range(5)
     ],
     'team_2_troops': [
-        {'x': random.randint(16, 30) * TROOP_SIZE, 'y': random.randint(0, 10) * TROOP_SIZE, 'troop_type': random.choice(['infantry', 'archer', 'cavalry']), 'health': TROOP_HEALTH}
+        (random.randint(16, 30) * TROOP_SIZE, random.randint(0, 10) * TROOP_SIZE, random.choice(TROOP_TYPES), TROOP_HEALTH)
         for _ in range(5)
     ],
     'obstacles': [
@@ -47,6 +43,9 @@ def handle_client(client_socket, address, team):
 
             # Deserialize received data
             player_data = pickle.loads(data)
+            print(f"Received data from team {team}: {player_data}")
+
+            # Update game state based on received data
             if team == 1:
                 game_state['team_1_troops'] = player_data['team_1_troops']
             else:
@@ -54,6 +53,7 @@ def handle_client(client_socket, address, team):
 
             # Send updated game state to client
             client_socket.sendall(pickle.dumps(game_state))
+            print(f"Sent game state to team {team}")
 
         except Exception as e:
             print(f"Error: {e}")
