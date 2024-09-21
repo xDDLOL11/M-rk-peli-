@@ -113,7 +113,7 @@ while running:
         for troop in player_troops:
             troop.draw(screen)
         for troop_data in game_state.get('team_2_troops', []):
-            # Unpack troop_data correctly
+            # Ensure troop_data is unpacked correctly
             enemy_troop = Troop(troop_data[0], troop_data[1], troop_data[2], troop_data[3], team=2)
             enemy_troop.draw(screen)
         pygame.display.update()
