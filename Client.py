@@ -63,7 +63,6 @@ def main():
     players = {}
     traps = []
     rubies = []
-    movement_log = []
 
     while True:
         for event in pygame.event.get():
@@ -107,8 +106,6 @@ def main():
         try:
             data = sock.recv(4096)
             players, traps, rubies, movement_logs = pickle.loads(data)
-            if player_type in movement_logs:
-                movement_log = movement_logs[player_type]  # Get own movement log
         except:
             pass
 
