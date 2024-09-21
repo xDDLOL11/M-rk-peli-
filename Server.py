@@ -5,7 +5,7 @@ import numpy as np
 import random
 
 # Game settings
-HOST = '0.0.0.0'
+HOST = '0.0.0.0'  # Server binds to all available interfaces
 PORT = 12345
 players = {}
 player_positions = {}
@@ -20,6 +20,10 @@ trap_types = ["slow", "damage", "stun"]  # Different trap types
 def handle_client(conn, addr):
     global game_running
     print(f"Connected by {addr}")
+    players[addr] = conn
+    player_positions[addr] = np.array([0.0, 0.0])  # Initialize player position
+    player_health[addr] = 5  # Initialize player health
+
     while game_running:
         try:
             data = conn.recv(4096)
@@ -72,15 +76,11 @@ def main():
     global game_running
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
-    server.listen(10)  # Allow more than 2 connections
+    server.listen(10)  # Allow multiple connections
     print("Server started, waiting for players...")
 
     while True:
         conn, addr = server.accept()
-        players[addr] = conn
-        player_positions[addr] = np.array([0.0, 0.0])  # Initialize player position
-        player_health[addr] = 5  # Initialize player health
-
         threading.Thread(target=handle_client, args=(conn, addr)).start()
 
         if len(players) >= 2:
@@ -102,12 +102,6 @@ def main():
                         rubies.remove(ruby)  # Remove collected ruby
                         spawn_ruby()  # Respawn ruby at a new location
                         break
-
-                # Check if Jussi is at the spawn point to win
-                if np.linalg.norm(player_positions[addr]) < 0.5:  # Check if at spawn point
-                    print(f"{addr} wins the game!")
-                    game_running = False
-                    break
 
             # Check for player health
             if player_health[addr] <= 0:
