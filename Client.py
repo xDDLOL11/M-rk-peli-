@@ -60,7 +60,7 @@ except Exception as e:
 # Example team assignment
 team = 1
 
-# Create player and AI troops
+# Create player troops
 player_troops = [Troop(random.randint(0, 15) * TROOP_SIZE, random.randint(0, 10) * TROOP_SIZE, random.choice(['infantry', 'archer', 'cavalry']), TROOP_HEALTH, team) for _ in range(5)]
 
 # Main game loop
@@ -103,9 +103,12 @@ while running:
         # Receive game state from the server
         try:
             game_state_data = client_socket.recv(4096)
+            if not game_state_data:
+                raise ValueError("Received empty data from server.")
             game_state = pickle.loads(game_state_data)
+            print(f"Received game state: {game_state}")
         except Exception as e:
-            print(f"Failed to receive data from server: {e}")
+            print(f"Failed to receive or process data from server: {e}")
             continue
 
         # Update and draw game state
@@ -113,13 +116,15 @@ while running:
         for troop in player_troops:
             troop.draw(screen)
         for troop_data in game_state.get('team_2_troops', []):
-            # Ensure troop_data is unpacked correctly
+            if len(troop_data) != 4:
+                print(f"Unexpected troop_data format: {troop_data}")
+                continue
             enemy_troop = Troop(troop_data[0], troop_data[1], troop_data[2], troop_data[3], team=2)
             enemy_troop.draw(screen)
         pygame.display.update()
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred in the main loop: {e}")
         running = False
 
 pygame.quit()
