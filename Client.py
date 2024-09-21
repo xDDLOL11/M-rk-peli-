@@ -33,11 +33,11 @@ TROOP_TYPES = {
 
 # Troop class
 class Troop:
-    def __init__(self, x, y, troop_type, team):
+    def __init__(self, x, y, troop_type, health, team):
         self.x = x
         self.y = y
         self.troop_type = troop_type
-        self.health = TROOP_HEALTH
+        self.health = health
         self.selected = False
         self.team = team
 
@@ -61,7 +61,7 @@ except Exception as e:
 team = 1
 
 # Create player and AI troops
-player_troops = [Troop(random.randint(0, 15) * TROOP_SIZE, random.randint(0, 10) * TROOP_SIZE, random.choice(['infantry', 'archer', 'cavalry']), team) for _ in range(5)]
+player_troops = [Troop(random.randint(0, 15) * TROOP_SIZE, random.randint(0, 10) * TROOP_SIZE, random.choice(['infantry', 'archer', 'cavalry']), TROOP_HEALTH, team) for _ in range(5)]
 
 # Main game loop
 running = True
@@ -113,7 +113,8 @@ while running:
         for troop in player_troops:
             troop.draw(screen)
         for troop_data in game_state.get('team_2_troops', []):
-            enemy_troop = Troop(*troop_data, team=2)
+            # Unpack troop_data correctly
+            enemy_troop = Troop(troop_data[0], troop_data[1], troop_data[2], troop_data[3], team=2)
             enemy_troop.draw(screen)
         pygame.display.update()
 
